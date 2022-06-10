@@ -38,7 +38,7 @@ def data():
 
     btc_balance = priv_api.get_accounts_for_currency("BTC")
     if auto_withdraw:
-        if float(btc_balance["available"] >= 0.0005):
+        if float(btc_balance["available"]) >= 0.0005:
             print("[*] Reached limit! Withdrawing..")
             priv_api.withdraw_request(withdraw_id,btc_balance["available"],"BTC")
     btcbalance.set(btc_balance["available"])
