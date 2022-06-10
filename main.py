@@ -37,9 +37,10 @@ def data():
     get_rigs = priv_api.get_rigs("MINING,ERROR,STOPPED,BENCHMARKING")
 
     btc_balance = priv_api.get_accounts_for_currency("BTC")
-    if auto_withdraw and float(btc_balance["available"] >= 0.0005):
-        print("[*] Reached limit! Withdrawing..")
-        priv_api.withdraw_request(withdraw_id,btc_balance["available"],"BTC")
+    if auto_withdraw:
+        if float(btc_balance["available"] >= 0.0005):
+            print("[*] Reached limit! Withdrawing..")
+            priv_api.withdraw_request(withdraw_id,btc_balance["available"],"BTC")
     btcbalance.set(btc_balance["available"])
     balanceunpaid = float(btc_balance["available"])+float(get_rigs["unpaidAmount"])
     balance_unpaid.set(balanceunpaid)
