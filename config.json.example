@@ -1,0 +1,7 @@
+{
+    "org-id": "xxxxxxx",
+    "key": "xxxxxxx",
+    "secret": "xxxxxx",
+    "withdraw-id": "xxxxxx",
+    "auto-withdraw": true
+}
