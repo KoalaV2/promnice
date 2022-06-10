@@ -13,7 +13,7 @@ organization_id = config["org-id"]
 key = config["key"]
 secret = config["secret"]
 withdraw_id = config["withdraw-id"]
-auto_withdraw = config["auto_withdraw"]
+auto_withdraw = config["auto-withdraw"]
 
 btcbalance = prometheus_client.Gauge('btcbalance', 'The confirmed BTC balance.')
 btcunpaid = prometheus_client.Gauge('btcunpaid', 'Current unconfirmed BTC.')
