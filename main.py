@@ -25,6 +25,7 @@ remainingpayout = prometheus_client.Gauge('remainingpayout', 'Remaining btc unti
 hashrate = prometheus_client.Gauge('hashrate', 'Estimate hashrate of all algorithms combined.', ['rigname'])
 minersmining = prometheus_client.Gauge('minersmining', 'Amount of miners currently mining.')
 hashraterejected = prometheus_client.Gauge('hashrejected', 'Amount of rejected hashrate.', ['rigname'])
+mininggputemp = prometheus_client.Gauge('mininggputemp', 'Temperature of the GPU for the miner.', ['rigname','devicename'])
 
 
 priv_api = nicehash.private_api(host, organization_id, key, secret)
@@ -63,11 +64,10 @@ def data():
         profitability = float(f"{data['profitability']:f}")
         profit.labels(rig_name).set(f"{profitability:f}")
         profitlocal.labels(rig_name).set(profit_local)
-        # for devices in data["devices"]:
-        #     if "AMD Radeon(TM) Graphics" in devices["name"]:
-        #         devicestatus = devices["status"].get("enumName","")
-        #         if devicestatus == "MINING" or devicestatus == "BENCHMARKING":
-        #             priv_api.rig_action(data["rigId"],"STOP",devices["id"])
+        for devices in data["devices"]:
+            if devices["deviceType"]["enumName"] != "CPU" and devices["temperature"] > 0:
+                mininggputemp.labels(rig_name,devices["name"]).set(devices["temperature"])
+                # print(f"[*] GPU {devices['name']} is {devices['temperature']}°C")
         try:
             for moredata in data["stats"]:
                 hashratevalue += moredata["speedAccepted"]
@@ -93,6 +93,7 @@ def main():
         profit.clear()
         hashrate.clear()
         hashraterejected.clear()
+        mininggputemp.clear()
         data()
         time.sleep(30)
 
