@@ -31,6 +31,11 @@ mininggputemp = prometheus_client.Gauge('mininggputemp', 'Temperature of the GPU
 priv_api = nicehash.private_api(host, organization_id, key, secret)
 
 def data():
+    profitlocal.clear()
+    profit.clear()
+    hashrate.clear()
+    hashraterejected.clear()
+    mininggputemp.clear()
     profit_local = 0
     profitability = 0
     totalprofitability = float(priv_api.get_rigs("MINING,ERROR")["totalProfitability"])
@@ -89,11 +94,6 @@ def main():
     print("[*] Starting Prometheus web server.")
     prometheus_client.start_http_server(9090)
     while True:
-        profitlocal.clear()
-        profit.clear()
-        hashrate.clear()
-        hashraterejected.clear()
-        mininggputemp.clear()
         data()
         time.sleep(30)
 
