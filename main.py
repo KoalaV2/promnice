@@ -35,27 +35,36 @@ class Collector:
                 print("[*] Reached limit! Withdrawing..")
                 priv_api.withdraw_request(withdraw_id,btc_balance["available"],"BTC")
 
-        btcbalance = GaugeMetricFamily('btcbalance', 'The confirmed BTC balance.',labels=["type"])
-        btcbalance.add_metric(["available"], btc_balance["available"])
-        btcbalance.add_metric(["unpaid"], balanceunpaid)
+        btcbalance = GaugeMetricFamily('btcbalance', 'The confirmed BTC balance.')
+        btcbalance.add_metric([],btc_balance["available"])
+        yield btcbalance
+        btcunpaid = GaugeMetricFamily('btcunpaid', 'Current unconfirmed BTC.')
+        btcunpaid.add_metric([],balanceunpaid)
+        yield btcunpaid
         try:
             limit_reach = remaining_payout/hourprofit
         except:
             limit_reach = 0
-        btcbalance.add_metric(["limitreach"], limit_reach)
-        yield btcbalance
-
-
-        minerstats = GaugeMetricFamily('minerstats', 'Stats about the miners.',labels=["type","rigname","devicename"])
+        limitreach = GaugeMetricFamily('limitreach', 'Days until withdraw limit should be reached.')
+        limitreach.add_metric([], limit_reach)
+        yield limitreach
 
         miners_mining = 0
         for data,value in get_rigs["minerStatuses"].items():
             if data == "MINING" or data == "ERROR":
                 miners_mining += value
 
-        minerstats.add_metric(["minersmining"], miners_mining)
 
+        minersmining = GaugeMetricFamily('minersmining', 'Number of miners mining.')
+        minersmining.add_metric([], miners_mining)
 
+        yield minersmining
+
+        profit = GaugeMetricFamily('profitability', 'The current daily profitability.',labels=['rigname'])
+        profitlocal = GaugeMetricFamily('localprofitability', 'The current daily local profitability.',labels=['rigname'])
+        mininggputemp = GaugeMetricFamily('mininggputemp', 'GPU Miner temp.',labels=['rigname','devicename'])
+        hashrate = GaugeMetricFamily('hashrate', 'Estimate hashrate for all miners.',labels=['rigname'])
+        hashraterejected = GaugeMetricFamily('hashraterejected', 'Estimate rejected hashrate for all miners.',labels=['rigname'])
         for data in get_rigs["miningRigs"]:
             if data["minerStatus"] == "STOPPED":
                 print("[*] Miner stopped. Starting..")
@@ -65,21 +74,25 @@ class Collector:
             rig_name = data["name"]
             profit_local = float(f"{data['localProfitability']:f}")
             profitability = float(f"{data['profitability']:f}")
-            minerstats.add_metric(["profitability",rig_name],profitability)
-            minerstats.add_metric(["localprofitability",rig_name],profit_local)
+            profit.add_metric([rig_name],profitability)
+            profitlocal.add_metric([rig_name],profit_local)
             for devices in data["devices"]:
                 if devices["deviceType"]["enumName"] != "CPU" and devices["temperature"] > 0:
-                    minerstats.add_metric(["mininggputemp",rig_name,devices["name"]],devices["temperature"])
+                    mininggputemp.add_metric([rig_name,devices["name"]],devices["temperature"])
                     # print(f"[*] GPU {devices['name']} is {devices['temperature']}°C")
             try:
                 for moredata in data["stats"]:
                     hashratevalue += moredata["speedAccepted"]
                     hashrate_rejected += moredata["speedRejectedTotal"]
-                minerstats.add_metric(["hashrate",rig_name],hashratevalue)
-                minerstats.add_metric(["hashraterejected",rig_name],hashrate_rejected)
+                hashrate.add_metric([rig_name],hashratevalue)
+                hashraterejected.add_metric(["hashraterejected",rig_name],hashrate_rejected)
             except:
                 pass
-        yield minerstats
+        yield profit
+        yield profitlocal
+        yield mininggputemp
+        yield hashrate
+        yield hashraterejected
 
 
 def main():
