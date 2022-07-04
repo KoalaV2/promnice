@@ -38,7 +38,6 @@ class Collector:
         btcbalance = GaugeMetricFamily('btcbalance', 'The confirmed BTC balance.',labels=["type"])
         btcbalance.add_metric(["available"], btc_balance["available"])
         btcbalance.add_metric(["unpaid"], balanceunpaid)
-        btcbalance.add_metric(["remaining"], remaining_payout)
         try:
             limit_reach = remaining_payout/hourprofit
         except:
