@@ -90,7 +90,7 @@ def main():
             prometheus_client.REGISTRY)
     print("[*] Starting Prometheus web server.")
     server = http.server.HTTPServer(
-            ("127.0.0.1", 8080), handler)
+            ("0.0.0.0", 9090), handler)
     server.serve_forever()
 
 
