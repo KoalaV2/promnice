@@ -64,7 +64,7 @@ class Collector:
         profitlocal = GaugeMetricFamily('localprofitability', 'The current daily local profitability.',labels=['rigname'])
         mininggputemp = GaugeMetricFamily('mininggputemp', 'GPU Miner temp.',labels=['rigname','devicename'])
         hashrate = GaugeMetricFamily('hashrate', 'Estimate hashrate for all miners.',labels=['rigname'])
-        hashraterejected = GaugeMetricFamily('hashraterejected', 'Estimate rejected hashrate for all miners.',labels=['rigname'])
+        hashraterejected = GaugeMetricFamily('hashrejected', 'Estimate rejected hashrate for all miners.',labels=['rigname'])
         for data in get_rigs["miningRigs"]:
             if data["minerStatus"] == "STOPPED":
                 print("[*] Miner stopped. Starting..")
