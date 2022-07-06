@@ -26,7 +26,6 @@ class Collector:
         get_rigs = priv_api.get_rigs("MINING,ERROR,STOPPED,BENCHMARKING")
 
         totalprofitability = float(priv_api.get_rigs("MINING,ERROR")["totalProfitability"])
-        hourprofit = totalprofitability/24
         btc_balance = priv_api.get_accounts_for_currency("BTC")
         balanceunpaid = float(btc_balance["available"])+float(get_rigs["unpaidAmount"])
         remaining_payout = 0.0005-balanceunpaid
@@ -42,7 +41,7 @@ class Collector:
         btcunpaid.add_metric([],balanceunpaid)
         yield btcunpaid
         try:
-            limit_reach = remaining_payout/hourprofit
+            limit_reach = remaining_payout/totalprofitability
         except:
             limit_reach = 0
         limitreach = GaugeMetricFamily('limitreach', 'Days until withdraw limit should be reached.')
